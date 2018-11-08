@@ -79,6 +79,66 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL31_UBOOT
 	  bl31.bin.  This is used for example by the Xilinx version of
 	  U-Boot SPL to load ATF on the ZynqMP SoC.
 
+choice
+	prompt "Select BL32 stage for the trusted firmware"
+	help
+	  Select BL32 stage for the trusted firmware
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_WITHOUT_BL32
+	bool "No BL32 stage (secure payload) used with trusted firmware"
+	help
+	  This option shall be set if no BL32 stage is specified to the
+	  trusted firmware.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL32
+	bool "BL32 stage (secure payload) built from ATF component"
+	help
+	  This option shall be set if the BL32 image is built from trusted
+	  firmware sources (i.e sp_min, tsp). In such case, the target BL32
+	  payload shall be define from configuration directive
+	  BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES , either
+	  using directive SPD=<bl32_id> (Aarch64 platforms, i.e
+	  SPD=tspd) or AARCH32_SP=<bl32_id> (Aarch32 and Armv7 platforms),
+	  i.e "AARCH32_SP=sp_min".
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_PREBUILT_BL32
+	bool "Use an externally built BL32 image set"
+	help
+	  This option allows to use an prebuilt BL32 boot stage with
+	  the Arm trusted firmware.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_OPTEE_AS_BL32
+	bool "Use OP-TEE OS as BL32"
+	depends on BR2_TARGET_OPTEE_OS
+	help
+	  This option allows to embed OP-TEE OS as the BL32 part of
+	  the ARM Trusted Firmware boot sequence. It ensures that the
+	  optee-os package gets built before TF-A and that the
+	  appropriate BL32 variable pointing to OP-TEE OS binary is
+	  passed when building ATF.
+
+endchoice
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL32_IMAGE
+	string "File path of the externally built BL32 image"
+	depends on BR2_TARGET_ARM_TRUSTED_FIRMWARE_PREBUILT_BL32
+	help
+	  Filename of the BL32 image if externally built.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL32_EXTRA1
+	string "File path of the externally built BL32 extra1 image"
+	depends on BR2_TARGET_ARM_TRUSTED_FIRMWARE_PREBUILT_BL32
+	default ""
+	help
+	  Path of the BL32 extra1 image externally built if any.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL32_EXTRA2
+	string "File path of the externally built BL32 extra2 image"
+	depends on BR2_TARGET_ARM_TRUSTED_FIRMWARE_PREBUILT_BL32
+	default ""
+	help
+	  Path of the BL32 extra2 image externally built if any.
+
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33
 	bool "Use U-Boot as BL33"
 	depends on BR2_TARGET_UBOOT
