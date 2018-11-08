@@ -1,6 +1,6 @@
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE
 	bool "ARM Trusted Firmware (ATF)"
-	depends on (BR2_aarch64 || BR2_arm) && BR2_TARGET_UBOOT
+	depends on BR2_aarch64 || BR2_arm
 	help
 	  Enable this option if you want to build the ATF for your ARM
 	  based embedded device.
@@ -74,6 +74,7 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL31
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL31_UBOOT
 	bool "Build BL31 U-Boot image"
 	select BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL31
+	depends on BR2_TARGET_UBOOT
 	help
 	  Generates a U-Boot image named atf-uboot.ub containing
 	  bl31.bin.  This is used for example by the Xilinx version of
@@ -139,6 +140,11 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL32_EXTRA2
 	help
 	  Path of the BL32 extra2 image externally built if any.
 
+choice
+	prompt "Select BL33 stage for the trusted firmware"
+	help
+	  Select BL33 stage for the trusted firmware
+
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33
 	bool "Use U-Boot as BL33"
 	depends on BR2_TARGET_UBOOT
@@ -147,6 +153,20 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33
 	  the ARM Trusted Firmware. It ensures that the u-boot package
 	  gets built before ATF, and that the appropriate BL33
 	  variable pointing to u-boot.bin is passed when building ATF.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_PREBUILT_BL33
+	bool "Use an externally built BL33 image set"
+	help
+	  This option allows to use an prebuilt BL33 boot stage with
+	  the Arm trusted firmware.
+
+endchoice
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL33_IMAGE
+	string "File path of the externally built BL33 image"
+	depends on BR2_TARGET_ARM_TRUSTED_FIRMWARE_PREBUILT_BL33
+	help
+	  Path of the prebuilt BL33 image if any.
 
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES
 	string "Additional ATF build variables"
