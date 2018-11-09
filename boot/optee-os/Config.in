@@ -1,0 +1,99 @@
+config BR2_TARGET_OPTEE_OS
+	bool "optee_os"
+	select BR2_PACKAGE_OPENSSL
+	help
+	  http://github.org/OP-TEE/optee_os
+
+if BR2_TARGET_OPTEE_OS
+
+# Choose the version the fetch
+choice
+	prompt "OP-TEE OS version"
+	help
+	  Select the version of OP-TEE OS you want to use
+
+config BR2_TARGET_OPTEE_OS_LATEST
+	bool "sync with latest release tag"
+	help
+	  Sync on latest release tag. Not supported yet. This needs OP-TEE
+	  project to update buildroot database on each new release tag.
+
+config BR2_TARGET_OPTEE_OS_GIT
+	bool "sync on OP-TEE OS official github repository"
+	help
+	  Sync on latest release tag. Not supported yet. This needs OP-TEE
+	  project to update buildroot database on each new release tag.
+
+config BR2_TARGET_OPTEE_OS_LOCAL
+	bool "Use a local source file tree"
+	help
+	  Select this option if you want to build OP-TEE OS from a local filetree.
+
+endchoice
+
+config BR2_TARGET_OPTEE_OS_VERSION
+	string
+	default "3.3.0"		if BR2_TARGET_OPTEE_OS_LATEST
+	default BR2_TARGET_OPTEE_OS_GIT_REFERENCE \
+				if BR2_TARGET_OPTEE_OS_GIT
+	default "local" 	if BR2_TARGET_OPTEE_OS_LOCAL
+
+
+config BR2_TARGET_OPTEE_OS_SITE
+	string "sourcetree-site"
+	default "https://github.com/OP-TEE/optee_os.git" \
+				if BR2_TARGET_OPTEE_OS_GIT
+	help
+	  Specific location of the reference source tree (path, git url, ...).
+
+# Case fetching from a GIT repository
+if BR2_TARGET_OPTEE_OS_GIT
+config BR2_TARGET_OPTEE_OS_GIT_REFERENCE
+	string "git reference to pull"
+	default "3.3.0"
+	help
+	  Reference in the target git repository to sync with.
+endif
+
+# Building core, TA libraries/devkit and/or generic TA services
+
+config BR2_TARGET_OPTEE_OS_SDK
+	bool "Build TA devkit"
+	default y
+	help
+	  If enabled, generate the trusted application developement kit
+	  for the target OP-TEE OS.
+
+config BR2_TARGET_OPTEE_OS_BUILD
+	bool "Build core"
+	default y
+	help
+	  If enabled, the OP-TEE OS core and trusted libraries.
+
+config BR2_TARGET_OPTEE_OS_SERVICES
+	bool "Build services TAs"
+	default y
+	help
+	  Build and embed the generic service trusted applications from
+	  optee_os.
+
+# Building TA libraries and/or core images require the target platform
+
+config BR2_TARGET_OPTEE_OS_PLATFORM
+	string "PLATFORM"
+	help
+	  Value for the PLATFORM directive provided to OP-TEE OS.
+
+config BR2_TARGET_OPTEE_OS_PLATFORM_FLAVOR
+	string "PLATFORM_FLAVOR"
+	help
+	  Value for the optional PLATFORM_FLAVOR directive provided to
+	  OP-TEE OS.
+
+config BR2_TARGET_OPTEE_OS_ADDITIONAL_VARIABLES
+	string "Additional ATF build variables"
+	help
+	  Additional parameters for the OP-TEE OS build
+	  E.g. 'CFG_TEE_CORE_DEBUG=y CFG_TEE_CORE_LOG_LEVEL=3'
+
+endif # BR2_TARGET_OPTEE_OS
