@@ -2183,6 +2183,7 @@ menu "OP-TEE support"
 	source "package/optee-client/Config.in"
 	source "package/optee-test/Config.in"
 	source "package/optee-examples/Config.in"
+	source "package/optee-benchmark/Config.in"
 endmenu
 
 endif
