@@ -1,0 +1,67 @@
+config BR2_PACKAGE_OPTEE_TEST
+	bool "optee_client"
+	help
+	  http://github.org/OP-TEE/optee_client
+
+if BR2_PACKAGE_OPTEE_TEST
+
+choice
+	prompt "OP-TEE test version"
+	help
+	  Select the version of OP-TEE test you want to use
+
+config BR2_PACKAGE_OPTEE_TEST_LATEST
+	bool "sync with latest release tag"
+	help
+	  Sync on latest release tag. This currently fetches the latest
+	  registered release tag from the OP-TEE OS official Git
+	  repository.
+
+config BR2_PACKAGE_OPTEE_TEST_GIT_REFERENCE
+	bool "sync with a reference in the official OP-TEE test Git repo"
+	help
+	  Sync on a specific reference (tag, sha1, ...) from the official
+	  Git repository. BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION shall
+	  set the target reference to sync with.
+
+config BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+	bool "sync with a specific Git"
+	help
+	  Sync with a specific OP-TEE Git repository.
+	  BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_URL and
+	  BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION shall set the target Git
+	  repository and version reference to sync with.
+
+endchoice
+
+config BR2_PACKAGE_OPTEE_TEST_VERSION
+	string
+	default "3.3.0"		if BR2_PACKAGE_OPTEE_TEST_LATEST
+	default BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION \
+				if (BR2_PACKAGE_OPTEE_TEST_GIT_REFERENCE || \
+				    BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT)
+	help
+	  Reference in the target Git repository to sync with.
+
+if BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+
+config BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_URL
+	string "Git repository site"
+	help
+	  Specific location of the reference source tree Git repository.
+
+endif
+
+if BR2_PACKAGE_OPTEE_TEST_GIT_REFERENCE || BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+
+config BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION
+	string "target reference to pull in the Git repository"
+	default "3.3.0"
+	help
+	  Package version reference to sync with. As source file reference
+	  is a Git repository, the version reference can be any Git reference
+	  as a tag or a sha1.
+
+endif
+
+endif #BR2_PACKAGE_OPTEE_TEST
