@@ -1,0 +1,57 @@
+config BR2_PACKAGE_OPTEE_EXAMPLES
+	bool "Embed OP-TEE examples"
+	depends on BR2_aarch64 || BR2_arm
+	help
+	  Enable the OP-TEE examples package that brings examples of
+	  implementation of OP-TEE non-secure client applications and
+	  secure trusted applications. OP-TEE examples is a
+	  component delivered by the OP-TEE project.
+
+if BR2_PACKAGE_OPTEE_EXAMPLES
+
+choice
+	prompt "OP-TEE exmaples version"
+	default BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	help
+	  Select the version of OP-TEE exmaples you want to use
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	bool "sync with latest release tag"
+	help
+	  Sync on latest release tag. This currently fetches the
+	  latest registered release tag from the OP-TEE official
+	  Git repository.
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+	bool "sync with a specific Git"
+	help
+	  Sync with a specific OP-TEE Git repository.
+
+endchoice
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_VERSION
+	string
+	default "3.3.0"		if BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	default BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_VERSION \
+				if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+	help
+	  Reference in the target Git repository to sync with.
+
+if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_URL
+	string "Git repository site"
+	help
+	  Specific location of the reference source tree Git
+	  repository.
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_VERSION
+	string "target reference to pull in the Git repository"
+	help
+	  Package version reference to sync with. As source file
+	  reference is a Git repository, the version reference can
+	  be any Git reference as a tag or a sha1.
+
+endif
+
+endif #BR2_PACKAGE_OPTEE_EXAMPLES
