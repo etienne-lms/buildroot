@@ -1,0 +1,26 @@
+move python scripts to pyhton3
+
+Use python3 for scripts depending on module Crypto.
+
+Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
+
+diff --git a/scripts/pem_to_pub_c.py b/scripts/pem_to_pub_c.py
+index 6b8fa36..0b03d62 100755
+--- a/scripts/pem_to_pub_c.py
++++ b/scripts/pem_to_pub_c.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # SPDX-License-Identifier: BSD-2-Clause
+ #
+ # Copyright (c) 2015, Linaro Limited
+diff --git a/scripts/sign.py b/scripts/sign.py
+index ad47479..348b40a 100755
+--- a/scripts/sign.py
++++ b/scripts/sign.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ #
+ # Copyright (c) 2015, 2017, Linaro Limited
+ #

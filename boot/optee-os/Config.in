@@ -1,0 +1,102 @@
+config BR2_TARGET_OPTEE_OS
+	bool "optee_os"
+	depends on BR2_aarch64 || BR2_arm
+	select BR2_PACKAGE_OPENSSL # host tool
+	help
+	  OP-TEE OS provides the secure world boot image and the trust
+	  application development kit of the OP-TEE project. OP-TEE OS
+	  also provides generic trusted application one can embedded
+	  into its system.
+
+	  http://github.org/OP-TEE/optee_os
+
+if BR2_TARGET_OPTEE_OS
+
+choice
+	prompt "OP-TEE OS version"
+	default BR2_TARGET_OPTEE_OS_LATEST
+	help
+	  Select the version of OP-TEE OS you want to use
+
+config BR2_TARGET_OPTEE_OS_LATEST
+	bool "sync with latest registered release tag"
+	help
+	  This fetches the latest registered release tag from
+	  the OP-TEE OS official Git repository.
+
+config BR2_TARGET_OPTEE_OS_CUSTOM_GIT
+	bool "sync on custom OP-TEE OS Git repository"
+	help
+	  Sync with a specific OP-TEE Git repository.
+
+endchoice
+
+config BR2_TARGET_OPTEE_OS_VERSION
+	string
+	default "3.3.0"		if BR2_TARGET_OPTEE_OS_LATEST
+	default BR2_TARGET_OPTEE_OS_CUSTOM_REPO_VERSION \
+				if BR2_TARGET_OPTEE_OS_CUSTOM_GIT
+
+if BR2_TARGET_OPTEE_OS_CUSTOM_GIT
+
+config BR2_TARGET_OPTEE_OS_CUSTOM_REPO_URL
+	string "sourcetree-site"
+	help
+	  Specific location of the reference source tree Git
+	  repository.
+
+config BR2_TARGET_OPTEE_OS_CUSTOM_REPO_VERSION
+	string "git reference to pull"
+	help
+	  Reference in the target git repository to sync with.
+
+endif
+
+# Building core, TA libraries/devkit and/or generic TA services
+
+config BR2_TARGET_OPTEE_OS_CORE
+	bool "Build core"
+	default y
+	help
+	  This option will build and install the OP-TEE core
+	  boot images.
+
+config BR2_TARGET_OPTEE_OS_SDK
+	bool "Build TA devkit"
+	default y
+	help
+	  This option will build and install the OP-TEE development
+	  kit for building OP-TEE trusted application images. It is
+          installed in the staging filetree in /lib/optee directory.
+
+config BR2_TARGET_OPTEE_OS_SERVICES
+	bool "Build service TAs"
+	default y
+	help
+	  This option will build and install the generic trusted
+	  applications in the OP-TEE OS source tree and install
+	  them in the target /lib/optee_armtz directory. At runtime
+	  OP-TEE OS can load trusted applications from a non secure
+	  filesystem into the secure world for execution.
+
+# Building TA libraries and/or core images require target platform info
+
+config BR2_TARGET_OPTEE_OS_PLATFORM
+	string "mandatory target PLATFORM"
+	help
+	  Value for the mandated PLATFORM build directive provided to
+	  OP-TEE OS.
+
+config BR2_TARGET_OPTEE_OS_PLATFORM_FLAVOR
+	string "optional target PLATFORM_FLAVOR"
+	help
+	  Value for the optional PLATFORM_FLAVOR build directive
+	  provided to OP-TEE OS.
+
+config BR2_TARGET_OPTEE_OS_ADDITIONAL_VARIABLES
+	string "Additional OP-TEE OS build variables"
+	help
+	  Additional parameters for the OP-TEE OS build
+	  E.g. 'CFG_TEE_CORE_LOG_LEVEL=3 CFG_UNWIND=y'
+
+endif # BR2_TARGET_OPTEE_OS
