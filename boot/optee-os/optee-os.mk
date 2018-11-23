@@ -13,8 +13,10 @@ OPTEE_OS_SITE = $(call qstrip,$(BR2_TARGET_OPTEE_OS_CUSTOM_REPO_URL))
 OPTEE_OS_SITE_METHOD = git
 BR_NO_CHECK_HASH_FOR += $(OPTEE_OS_SOURCE)
 else
-OPTEE_OS_SITE = $(call github,OP-TEE,optee_os,OPTEE_OS_VERSION)
+OPTEE_OS_SITE = $(call github,OP-TEE,optee_os,$(OPTEE_OS_VERSION))
 endif
+
+OPTEE_OS_DEPENDENCIES = openssl host-python-pycrypto
 
 # On 64bit targets, OP-TEE OS can be built in 32bit mode, or
 # can be built in 64bit mode and support 32bit and 64bit
@@ -37,30 +39,33 @@ OPTEE_OS_MAKE_OPTS += PLATFORM_FLAVOR=$(call qstrip,$(BR2_TARGET_OPTEE_OS_PLATFO
 endif
 OPTEE_OS_MAKE_OPTS += $(call qstrip,$(BR2_TARGET_OPTEE_OS_ADDITIONAL_VARIABLES))
 
-# OP-TEE OS builds from subdirectory build/ of its synced sourcetree root path
+# Requests OP-TEE OS to build from subdirectory out/ of its synced sourcetree root path
+# otherwise the output directory path depends on the target platform name.
+OPTEE_OS_BUILDDIR_OUT = out
+
 ifeq ($(BR2_aarch64),y)
-OPTEE_OS_LOCAL_SDK = build/export-ta_arm64
+OPTEE_OS_LOCAL_SDK = $(OPTEE_OS_BUILDDIR_OUT)/export-ta_arm64
 endif
 ifeq ($(BR2_arm),y)
-OPTEE_OS_LOCAL_SDK = build/export-ta_arm32
+OPTEE_OS_LOCAL_SDK = $(OPTEE_OS_BUILDDIR_OUT)/export-ta_arm32
 endif
 
 ifeq ($(BR2_TARGET_OPTEE_OS_CORE),y)
 define OPTEE_OS_BUILD_CORE
-	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) \
-		O=build $(TARGET_CONFIGURE_OPTS) $(OPTEE_OS_MAKE_OPTS) all
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) O=$(OPTEE_OS_BUILDDIR_OUT) \
+		$(TARGET_CONFIGURE_OPTS) $(OPTEE_OS_MAKE_OPTS) all
 endef
 define OPTEE_OS_INSTALL_CORE
 	mkdir -p $(BINARIES_DIR)
-	cp -dpf $(@D)/build/core/tee.bin $(BINARIES_DIR)
-	cp -dpf $(@D)/build/core/tee-*_v2.bin $(BINARIES_DIR)
+	cp -dpf $(@D)/$(OPTEE_OS_BUILDDIR_OUT)/core/tee.bin $(BINARIES_DIR)
+	cp -dpf $(@D)/$(OPTEE_OS_BUILDDIR_OUT)/core/tee-*_v2.bin $(BINARIES_DIR)
 endef
 endif
 
 ifeq ($(BR2_TARGET_OPTEE_OS_SDK),y)
 define OPTEE_OS_BUILD_SDK
-	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) \
-		 O=build $(TARGET_CONFIGURE_OPTS) $(OPTEE_OS_MAKE_OPTS) ta_dev_kit
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) O=$(OPTEE_OS_BUILDDIR_OUT) \
+		 $(TARGET_CONFIGURE_OPTS) $(OPTEE_OS_MAKE_OPTS) ta_dev_kit
 endef
 define OPTEE_OS_INSTALL_SDK
 	mkdir -p $(STAGING_DIR)/lib/optee
@@ -69,16 +74,10 @@ endef
 endif
 
 ifeq ($(BR2_TARGET_OPTEE_OS_SERVICES),y)
-define OPTEE_OS_BUILD_SERVICES
-	$(foreach f,$(wildcard $(@D)/ta_services/*/Makefile), \
-		$(TARGET_MAKE_ENV) $(MAKE) -C $(dir $f) \
-			O=build $(TARGET_CONFIGURE_OPTS) \
-			TA_DEV_KIT_DIR=$(@D)/$(OPTEE_OS_LOCAL_SDK) \
-			CROSS_COMPILE=$(TARGET_CROSS) &&) true
-endef
+# Core build already generates the TA services binaries. Install them.
 define OPTEE_OS_INSTALL_SERVICES
 	mkdir -p $(TARGET_DIR)/lib/optee_armtz
-	$(foreach f,$(wildcard $(@D)/ta_services/*/build/*.ta), \
+	$(foreach f,$(wildcard $(@D)/ta/*/$(OPTEE_OS_BUILDDIR_OUT)/*.ta), \
 		$(INSTALL) -v -p --mode=444 \
 			--target-directory=$(TARGET_DIR)/lib/optee_armtz \
 			 $f &&) true
@@ -88,7 +87,6 @@ endif
 define OPTEE_OS_BUILD_CMDS
 	$(OPTEE_OS_BUILD_CORE)
 	$(OPTEE_OS_BUILD_SDK)
-	$(OPTEE_OS_BUILD_SERVICES)
 endef
 
 define OPTEE_OS_INSTALL_IMAGES_CMDS

@@ -1,14 +1,13 @@
 config BR2_TARGET_OPTEE_OS
 	bool "optee_os"
-	depends on BR2_aarch64 || BR2_arm
-	select BR2_PACKAGE_OPENSSL # host tool
+	depends on BR2_aarch64 || BR2_ARM_CPU_ARMV7A
 	help
 	  OP-TEE OS provides the secure world boot image and the trust
 	  application development kit of the OP-TEE project. OP-TEE OS
 	  also provides generic trusted application one can embedded
 	  into its system.
 
-	  http://github.org/OP-TEE/optee_os
+	  http://github.com/OP-TEE/optee_os
 
 if BR2_TARGET_OPTEE_OS
 
@@ -37,20 +36,18 @@ config BR2_TARGET_OPTEE_OS_VERSION
 	default BR2_TARGET_OPTEE_OS_CUSTOM_REPO_VERSION \
 				if BR2_TARGET_OPTEE_OS_CUSTOM_GIT
 
-if BR2_TARGET_OPTEE_OS_CUSTOM_GIT
-
 config BR2_TARGET_OPTEE_OS_CUSTOM_REPO_URL
 	string "sourcetree-site"
+	depends on BR2_TARGET_OPTEE_OS_CUSTOM_GIT
 	help
 	  Specific location of the reference source tree Git
 	  repository.
 
 config BR2_TARGET_OPTEE_OS_CUSTOM_REPO_VERSION
 	string "git reference to pull"
+	depends on BR2_TARGET_OPTEE_OS_CUSTOM_GIT
 	help
 	  Reference in the target git repository to sync with.
-
-endif
 
 # Building core, TA libraries/devkit and/or generic TA services
 
@@ -71,13 +68,14 @@ config BR2_TARGET_OPTEE_OS_SDK
 
 config BR2_TARGET_OPTEE_OS_SERVICES
 	bool "Build service TAs"
+	depends on BR2_TARGET_OPTEE_OS_SDK
 	default y
 	help
-	  This option will build and install the generic trusted
-	  applications in the OP-TEE OS source tree and install
-	  them in the target /lib/optee_armtz directory. At runtime
-	  OP-TEE OS can load trusted applications from a non secure
-	  filesystem into the secure world for execution.
+	  This option install the generic trusted applications built
+	  from OP-TEE OS source tree. These are installed in the target
+	  /lib/optee_armtz directory. At runtime OP-TEE OS can load
+	  trusted applications from a non secure filesystem into the
+	  secure world for execution.
 
 # Building TA libraries and/or core images require target platform info
 
