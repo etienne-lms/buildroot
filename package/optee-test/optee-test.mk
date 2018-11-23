@@ -17,7 +17,6 @@ OPTEE_TEST_SITE = $(call github,OP-TEE,optee_test,$(OPTEE_TEST_VERSION))
 endif
 
 OPTEE_TEST_DEPENDENCIES = optee-client optee-os
-OPTEE_TEST_INSTALL_STAGING = YES
 
 ifeq ($(BR2_aarch64),y)
 OPTEE_TEST_SDK = $(STAGING_DIR)/lib/optee/export-ta_arm64
@@ -31,7 +30,7 @@ define OPTEE_TEST_BUILD_TAS
 	@$(foreach f,$(wildcard $(@D)/ta/*/Makefile), \
 		$(TARGET_CONFIGURE_OPTS) \
 		$(MAKE) CROSS_COMPILE=$(TARGET_CROSS) \
-			O=out TA_DEV_KIT_DIR=$(OPTEE_TEST_SDK) \
+			TA_DEV_KIT_DIR=$(OPTEE_TEST_SDK) \
 			-C $(dir $f) all &&) true
 endef
 

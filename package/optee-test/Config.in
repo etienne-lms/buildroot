@@ -1,6 +1,8 @@
 config BR2_PACKAGE_OPTEE_TEST
 	bool "optee_test"
-	depends on BR2_aarch64 || BR2_arm
+	depends on BR2_aarch64 || BR2_ARM_CPU_ARMV7A
+	depends on BR2_TARGET_OPTEE_OS
+	select BR2_PACKAGE_OPTEE_CLIENT
 	help
 	  This build option enables OP-TEE test package from the
 	  OP-TEE project. It helps platforms to verify the OP-TEE
@@ -13,7 +15,7 @@ config BR2_PACKAGE_OPTEE_TEST
 	  directory /lib/optee-armtz. These are loaded into the
 	  secure world at runtime.
 
-	  http://github.org/OP-TEE/optee_test
+	  http://github.com/OP-TEE/optee_test
 
 if BR2_PACKAGE_OPTEE_TEST
 
@@ -36,11 +38,20 @@ config BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
 
 endchoice
 
+config BR2_PACKAGE_OPTEE_TEST_SYNCED_VERSION
+	bool "use same version ref for OP-TEE components"
+	depends on BR2_PACKAGE_OPTEE_TEST_LATEST
+	help
+	  When enabled, OP-TEE examples version must match the version
+	  set for the other OP-TEE components.
+
 config BR2_PACKAGE_OPTEE_TEST_VERSION
 	string
-	default "3.3.0"		if BR2_PACKAGE_OPTEE_TEST_LATEST
+	default BR2_TARGET_OPTEE_OS_VERSION \
+			if BR2_PACKAGE_OPTEE_TEST_SYNCED_VERSION
+	default "3.3.0"	if BR2_PACKAGE_OPTEE_TEST_LATEST
 	default BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION \
-				if BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+			if BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
 	help
 	  Reference in the target Git repository to sync with.
 
