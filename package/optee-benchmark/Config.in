@@ -1,11 +1,14 @@
 config BR2_PACKAGE_OPTEE_BENCHMARK
 	bool "Embed OP-TEE benchmark support"
+	select BR2_PACKAGE_OPTEE_CLIENT
 	select BR2_PACKAGE_LIBYAML
 	help
 	  Enable the OP-TEE benchmark package that brings facilities
 	  for profiling traversal and execution timings when
 	  invoking OP-TEE. OP-TEE benchmark is a component delivered
 	  by the OP-TEE project.
+
+	  http://github.com/linaro-swg/optee_benchmark
 
 if BR2_PACKAGE_OPTEE_BENCHMARK
 
@@ -29,11 +32,21 @@ config BR2_PACKAGE_OPTEE_BENCHMARK_CUSTOM_GIT
 
 endchoice
 
+config BR2_PACKAGE_OPTEE_BENCHMARK_SYNCED_VERSION
+	bool "use same version ref for OP-TEE components"
+	depends on BR2_PACKAGE_OPTEE_BENCHMARK_LATEST
+	default true
+	help
+	  When enabled package version must match the version set for
+	  OP-TEE client.
+
 config BR2_PACKAGE_OPTEE_BENCHMARK_VERSION
 	string
-	default "3.3.0"		if BR2_PACKAGE_OPTEE_BENCHMARK_LATEST
+	default BR2_PACKAGE_OPTEE_CLIENT_VERSION \
+			if BR2_PACKAGE_OPTEE_BENCHMARK_SYNCED_VERSION
+	default "3.3.0"	if BR2_PACKAGE_OPTEE_BENCHMARK_LATEST
 	default BR2_PACKAGE_OPTEE_BENCHMARK_CUSTOM_REPO_VERSION \
-				if BR2_PACKAGE_OPTEE_BENCHMARK_CUSTOM_GIT
+			if BR2_PACKAGE_OPTEE_BENCHMARK_CUSTOM_GIT
 	help
 	  Reference in the target Git repository to sync with.
 
