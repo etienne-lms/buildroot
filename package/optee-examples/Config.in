@@ -1,11 +1,15 @@
 config BR2_PACKAGE_OPTEE_EXAMPLES
 	bool "Embed OP-TEE examples"
-	depends on BR2_aarch64 || BR2_arm
+	depends on BR2_aarch64 || BR2_ARM_CPU_ARMV7A
+	depends on BR2_TARGET_OPTEE_OS
+	select BR2_PACKAGE_OPTEE_CLIENT
 	help
 	  Enable the OP-TEE examples package that brings examples of
 	  implementation of OP-TEE non-secure client applications and
 	  secure trusted applications. OP-TEE examples is a
 	  component delivered by the OP-TEE project.
+
+	  https://github.com/linaro-swg/optee_examples
 
 if BR2_PACKAGE_OPTEE_EXAMPLES
 
@@ -29,29 +33,36 @@ config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
 
 endchoice
 
+config BR2_PACKAGE_OPTEE_EXAMPLES_SYNCED_VERSION
+	bool "use same version ref for OP-TEE components"
+	depends on BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	help
+	  When enabled package version must match the version set for
+	  OP-TEE OS and client components.
+
 config BR2_PACKAGE_OPTEE_EXAMPLES_VERSION
 	string
-	default "3.3.0"		if BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	default BR2_TARGET_OPTEE_OS_VERSION \
+			if BR2_PACKAGE_OPTEE_EXAMPLES_SYNCED_VERSION
+	default "3.3.0"	if BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
 	default BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_VERSION \
-				if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+			if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
 	help
 	  Reference in the target Git repository to sync with.
 
-if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
-
 config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_URL
 	string "Git repository site"
+	depends on BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
 	help
 	  Specific location of the reference source tree Git
 	  repository.
 
 config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_VERSION
 	string "target reference to pull in the Git repository"
+	depends on BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
 	help
 	  Package version reference to sync with. As source file
 	  reference is a Git repository, the version reference can
 	  be any Git reference as a tag or a sha1.
-
-endif
 
 endif #BR2_PACKAGE_OPTEE_EXAMPLES

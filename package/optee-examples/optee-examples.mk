@@ -17,7 +17,6 @@ OPTEE_EXAMPLES_SITE = $(call github,linaro-swg,optee_examples,$(OPTEE_EXAMPLES_V
 endif
 
 OPTEE_EXAMPLES_DEPENDENCIES = optee-client optee-os
-OPTEE_EXAMPLES_INSTALL_STAGING = YES
 
 ifeq ($(BR2_aarch64),y)
 OPTEE_EXAMPLES_SDK = $(STAGING_DIR)/lib/optee/export-ta_arm64
@@ -30,7 +29,7 @@ define OPTEE_EXAMPLES_BUILD_TAS
 	@$(foreach f,$(wildcard $(@D)/*/ta/Makefile), \
 		$(TARGET_CONFIGURE_OPTS) \
 		$(MAKE) CROSS_COMPILE=$(TARGET_CROSS) \
-			O=out TA_DEV_KIT_DIR=$(OPTEE_EXAMPLES_SDK) \
+			TA_DEV_KIT_DIR=$(OPTEE_EXAMPLES_SDK) \
 			-C $(dir $f) all &&) true
 endef
 
