@@ -34,11 +34,22 @@ config BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_GIT
 
 endchoice
 
+config BR2_PACKAGE_OPTEE_CLIENT_SYNCED_VERSION
+	bool "use same version ref for OP-TEE components"
+	depends on BR2_PACKAGE_OPTEE_CLIENT_LATEST
+	default true
+	help
+	  When enabled, OP-TEE client version must match the version
+	  set for the other OP-TEE components.
+
 config BR2_PACKAGE_OPTEE_CLIENT_VERSION
 	string
-	default "3.3.0"		if BR2_PACKAGE_OPTEE_CLIENT_LATEST
+	default BR2_TARGET_OPTEE_OS_VERSION \
+			if BR2_PACKAGE_OPTEE_CLIENT_SYNCED_VERSION && \
+			   BR2_TARGET_OPTEE_OS
+	default "3.3.0"	if BR2_PACKAGE_OPTEE_CLIENT_LATEST
 	default BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_REPO_VERSION \
-				if BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_GIT
+			if BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_GIT
 	help
 	  Reference in the target Git repository to sync with.
 
