@@ -1,0 +1,55 @@
+config BR2_PACKAGE_OPTEE_CLIENT
+	bool "optee-client"
+	help
+	  Enable the OP-TEE client package that brings non-secure
+	  client application resources for OP-TEE support. OP-TEE
+	  client is a component delivered by the OP-TEE project.
+
+	  The client API library allows application to invoke
+	  trusted applications hosted in the OP-TEE OS secure world.
+	  The supplicant provides services hosted by the non-secure
+	  world and invoked by the secure world.
+
+	  https://github.com/OP-TEE/optee_client
+
+if BR2_PACKAGE_OPTEE_CLIENT
+
+choice
+	prompt "version"
+	default BR2_PACKAGE_OPTEE_CLIENT_LATEST
+	help
+	  Select the version of OP-TEE client you want to use
+
+config BR2_PACKAGE_OPTEE_CLIENT_LATEST
+	bool "3.3.0"
+	help
+	  This fetches the registered release tag from the
+	  OP-TEE official Git repository.
+
+config BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_GIT
+	bool "Custom Git repository"
+	help
+	  Sync with a specific OP-TEE Git repository.
+
+endchoice
+
+if BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_GIT
+
+config BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_REPO_URL
+	string "URL of custom repository"
+
+config BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_REPO_VERSION
+	string "Custom repository version"
+	help
+	  Revision to use in the typical format used by
+	  Git E.G. a sha id, a tag, branch, ..
+
+endif
+
+config BR2_PACKAGE_OPTEE_CLIENT_VERSION
+	string
+	default "3.3.0"	if BR2_PACKAGE_OPTEE_CLIENT_LATEST
+	default BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_REPO_VERSION \
+			if BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_GIT
+
+endif #BR2_PACKAGE_OPTEE_CLIENT
