@@ -1,0 +1,45 @@
+core: configure for a single user mode architecture
+
+This change introduces CFG_USER_TA_TARGETS to allow a configuration
+to select a unique user TA execution architecture even if the
+platform supports several (Aarch32/Aarch64).
+
+CFG_USER_TA_TARGETS shall be set to either ta_arm32 or ta_arm64.
+
+This feature can be used in build environments that do not support
+several cross compilation toolchains when building a single target.
+Buildroot (at least up to 2018.11) is such of an environment.
+The environment will likely use an Aarch64 toolchain for the
+TEE/REE which toolchain may not be able to compile Aarch32 targets
+and build to fail with a error message like:
+
+    CC      out/ta_arm32-lib/libmbedtls/mbedtls/library/aes.o
+  aarch64-linux-gnu-gcc: error: unrecognized command line option '-mthumb'
+
+This changes is a less invasive yet less safe change in OP-TEE
+OS to support CFG_USER_TA_TARGETS. A better implementation for
+this configuration directive was merged as [1] from [2] before
+3.4.0 tag. One should prefer the official integration [1] rahter
+than this change but the later is likely to apply on older
+versions of OP-TEE one may need to use.
+
+[1] optee_os.git commit dc701d99e0d0 ("Introduce CFG_USER_TA_TARGETS to select user mode architecture(s)"
+[2] https://github.com/OP-TEE/optee_os/pull/2703
+
+Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
+
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -69,6 +69,10 @@ cmd-echo-silent := true
+ endif
+ endif
+ 
++# Non-invasive hack for well formed CFG_USER_TA_TARGETS to define ta-targets
++ifneq ($(strip $(CFG_USER_TA_TARGETS)),)
++override ta-targets := $(CFG_USER_TA_TARGETS)
++endif
+ 
+ include core/core.mk
+ 
+
