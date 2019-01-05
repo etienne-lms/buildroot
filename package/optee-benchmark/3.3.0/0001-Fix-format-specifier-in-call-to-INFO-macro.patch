@@ -1,0 +1,30 @@
+commit ecba70dd88f33f3c770a4c564b49d7e872eab34e
+Author: ChrisG55 <christian_g_55@msn.com>
+Date:   Thu Dec 6 11:52:29 2018 +0100
+
+    Fix format specifier in call to INFO macro
+    
+    Improper use of format specifiers for arguments of type intptr_t and size_t
+    raises warnings at compile time. Compilation breaks when GCC's -Werror flag is
+    set, which is the default. By using the appropriate format specifiers, no
+    warnings are raised and compilation succeeds.
+    
+    Reported-by: ChrisG55 <christian_g_55@msn.com>
+    Tested-by: ChrisG55 <christian_g_55@msn.com>
+    Fixes: 55fcc4ae0de4b9a2f7253562f8083694e69a8e33
+    Signed-off-by: ChrisG55 <christian_g_55@msn.com>
+    Reviewed-by: Joakim Bech <joakim.bech@linaro.org>
+
+diff --git a/main.c b/main.c
+index 3d53dca..86225bd 100644
+--- a/main.c
++++ b/main.c
+@@ -106,7 +106,7 @@ static void alloc_bench_buf(uint32_t cores)
+ 	paddr_ts_buf = op.params[0].value.a;
+ 	size = op.params[0].value.b;
+ 
+-	INFO("ts buffer paddr = %x, size = %d\n", paddr_ts_buf, size);
++	INFO("ts buffer paddr = %" PRIiPTR ", size = %zu\n", paddr_ts_buf, size);
+ 	if (paddr_ts_buf) {
+ 
+ 		bench_ts_global = mmap_paddr(paddr_ts_buf, size);
