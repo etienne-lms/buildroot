@@ -1,0 +1,32 @@
+cmake: component rely on C support
+
+Without specifing optee_client source expects only C source file
+support cmake may attempt to look for resources as g++. When
+building with environments that do not provide such tools as when
+building from native buildroot ofr a qemu target, optee_client
+fails to build. This change ensure a minimal C support allows to
+build optee_client with cmake.
+
+Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
+Acked-by: Jerome Forissier <jerome.forissier@linaro.org>
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0290205..a3fd269 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,5 @@
+ cmake_minimum_required (VERSION 3.2)
++project (optee_test C)
+ 
+ # Default cross compile settings
+ set (CMAKE_TOOLCHAIN_FILE CMakeToolchain.txt)
+diff --git a/ta/CMakeLists.txt b/ta/CMakeLists.txt
+index 22d7727..795237e 100644
+--- a/ta/CMakeLists.txt
++++ b/ta/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-project (xtest-ta-headers)
++project (xtest-ta-headers C)
+ 
+ add_library(${PROJECT_NAME} INTERFACE)
+ 
