@@ -1,0 +1,63 @@
+config BR2_PACKAGE_OPTEE_TEST
+	bool "optee-test"
+	depends on BR2_TARGET_OPTEE_OS
+	select BR2_PACKAGE_OPTEE_CLIENT
+	help
+	  This build option enables OP-TEE test package from the
+	  OP-TEE project. It helps platforms to verify the OP-TEE
+	  installation against a set of regression and performance
+	  tests.
+
+	  The package generates userspace test applications and
+	  data files for the Linux userland. It also generates
+	  OP-TEE trusted applications.
+
+	  Trusted application binary files are installed in the target
+	  directory /lib/optee_armtz as other trusted applications.
+	  At runtime OP-TEE OS can load trusted applications from this
+	  non-secure filesystem/directory into the secure world for
+	  execution.
+
+	  http://github.com/OP-TEE/optee_test
+
+if BR2_PACKAGE_OPTEE_TEST
+
+choice
+	prompt "version"
+	default BR2_PACKAGE_OPTEE_TEST_LATEST
+	help
+	  Select the version of OP-TEE test you want to use
+
+config BR2_PACKAGE_OPTEE_TEST_LATEST
+	bool "3.4.0"
+	help
+	  This fetches the registered release tag from the
+	  OP-TEE official Git repository.
+
+config BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+	bool "Custom Git repository"
+	help
+	  Sync with a specific OP-TEE Git repository.
+
+endchoice
+
+if BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+
+config BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_URL
+	string "URL of custom repository"
+
+config BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION
+	string "Custom repository version"
+	help
+	  Revision to use in the typical format used by
+	  Git E.G. a sha id, a tag, branch, ..
+
+endif
+
+config BR2_PACKAGE_OPTEE_TEST_VERSION
+	string
+	default "3.4.0"	if BR2_PACKAGE_OPTEE_TEST_LATEST
+	default BR2_PACKAGE_OPTEE_TEST_CUSTOM_REPO_VERSION \
+			if BR2_PACKAGE_OPTEE_TEST_CUSTOM_GIT
+
+endif #BR2_PACKAGE_OPTEE_TEST
