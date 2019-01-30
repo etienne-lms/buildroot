@@ -1,0 +1,59 @@
+config BR2_PACKAGE_OPTEE_EXAMPLES
+	bool "optee-examples"
+	depends on BR2_TARGET_OPTEE_OS
+	select BR2_PACKAGE_OPTEE_CLIENT
+	help
+	  Enable the OP-TEE examples package that brings examples of
+	  implementation of OP-TEE non-secure client applications and
+	  secure trusted applications. OP-TEE examples is a
+	  component delivered by the OP-TEE project.
+
+	  Trusted application binary files are installed in the target
+	  directory /lib/optee_armtz as other trusted applications.
+	  At runtime OP-TEE OS can load trusted applications from this
+	  non-secure filesystem/directory into the secure world for
+	  execution.
+
+	  https://github.com/linaro-swg/optee_examples
+
+if BR2_PACKAGE_OPTEE_EXAMPLES
+
+choice
+	prompt "version"
+	default BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	help
+	  Select the version of OP-TEE exmaples you want to use
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	bool "3.4.0"
+	help
+	  This fetches the registered release tag from the
+	  OP-TEE official Git repository.
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+	bool "Custom Git repository"
+	help
+	  Sync with a specific OP-TEE Git repository.
+
+endchoice
+
+if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_URL
+	string "URL of custom repository"
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_VERSION
+	string "Custom repository version"
+	help
+	  Revision to use in the typical format used by
+	  Git E.G. a sha id, a tag, branch, ..
+
+endif
+
+config BR2_PACKAGE_OPTEE_EXAMPLES_VERSION
+	string
+	default "3.4.0"	if BR2_PACKAGE_OPTEE_EXAMPLES_LATEST
+	default BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_REPO_VERSION \
+			if BR2_PACKAGE_OPTEE_EXAMPLES_CUSTOM_GIT
+
+endif #BR2_PACKAGE_OPTEE_EXAMPLES
