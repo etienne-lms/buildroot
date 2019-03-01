@@ -121,6 +121,26 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_OPTEE_AS_BL32
 
 endchoice
 
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_IMAGE_NAMES
+	bool "Use custom binary boot image filenames"
+	help
+	  If not set, build generates the boot image files with the
+	  generic filename that is images with .bin extension. These
+	  are copied to the output images/ directory.
+
+	  If enabled, use BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL_IMAGES
+	  to list the generated file names.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL_IMAGE_NAMES
+	string "Binary boot image filenames"
+	depends on BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_IMAGE_NAMES
+	help
+	  This is used when TF-A platform generates boot image files
+	  with custom file names. When so, this should list the path
+	  of the generated files location relatively to the package
+	  build root directory. These files are copied to the output
+	  images/ directory.
+
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33
 	bool "Use U-Boot as BL33"
 	depends on BR2_TARGET_UBOOT
