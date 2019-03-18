@@ -91,6 +91,36 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL31_UBOOT
 	  bl31.bin.  This is used for example by the Xilinx version of
 	  U-Boot SPL to load ATF on the ZynqMP SoC.
 
+choice
+	prompt "Select BL32 stage"
+	default BR2_TARGET_ARM_TRUSTED_FIRMWARE_INTREE_BL32
+	help
+	  Select BL32 stage for the trusted firmware
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_INTREE_BL32
+	bool "Intree or no BL32 stage"
+	help
+	  This option shall be set if the BL32 image is built from
+	  trusted firmware sources (i.e sp_min, tsp) or when no BL32
+	  is expected.
+
+	  When the BL32 stage shall be built from ATF source tree,
+	  the target BL32 payload shall be defined from configuration
+	  BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES, either
+	  using directive SPD=<bl32_id> (Aarch64 platforms,
+	  i.e SPD=tspd) or AARCH32_SP=<bl32_id> (Aarch32 and Armv7
+	  platforms, i.e "AARCH32_SP=sp_min"). If no SPD or AARCH32_SP
+	  directive is specified, ATF will build without BL32 support.
+
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_OPTEE_AS_BL32
+	bool "OP-TEE OS as BL32"
+	depends on BR2_TARGET_OPTEE_OS
+	help
+	  This option allows to embed OP-TEE OS as the BL32 part of
+	  the ARM Trusted Firmware boot sequence.
+
+endchoice
+
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33
 	bool "Use U-Boot as BL33"
 	depends on BR2_TARGET_UBOOT
