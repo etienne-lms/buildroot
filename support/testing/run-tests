@@ -31,6 +31,8 @@ def main():
                         help='BR2_JLEVEL to use for each testcase')
     parser.add_argument('--timeout-multiplier', type=int, default=1,
                         help='increase timeouts (useful for slow machines)')
+    parser.add_argument('--local-emulator', action='store_true',
+                        help='use a locally built emulator')
 
     args = parser.parse_args()
 
@@ -106,6 +108,8 @@ def main():
         parser.print_help()
         return 1
     BRConfigTest.timeout_multiplier = args.timeout_multiplier
+
+    BRConfigTest.local_emulator = args.local_emulator
 
     nose2_args = ["-v",
                   "-N", str(args.testcases),

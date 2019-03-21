@@ -1,14 +1,19 @@
 import pexpect
 
+import os
+
 import infra
 
 
 class Emulator(object):
 
-    def __init__(self, builddir, downloaddir, logtofile, timeout_multiplier):
+    def __init__(self, builddir, downloaddir, logtofile, timeout_multiplier,
+                 local_emulator):
         self.qemu = None
         self.downloaddir = downloaddir
         self.logfile = infra.open_log_file(builddir, "run", logtofile)
+        self.builddir = builddir
+        self.local_emulator = local_emulator
         # We use elastic runners on the cloud to runs our tests. Those runners
         # can take a long time to run the emulator. Use a timeout multiplier
         # when running the tests to avoid sporadic failures.
@@ -30,13 +35,21 @@ class Emulator(object):
     #
     # options: array of command line options to pass to Qemu
     #
-    def boot(self, arch, kernel=None, kernel_cmdline=None, options=None):
+    # local: if True, the locally built qemu host tool is used instead of a
+    # qemu host tool found from the PATH.
+    #
+    def boot(self, arch, kernel=None, kernel_cmdline=None, options=None,
+             local=None):
         if arch in ["armv7", "armv5"]:
             qemu_arch = "arm"
         else:
             qemu_arch = arch
 
-        qemu_cmd = ["qemu-system-{}".format(qemu_arch),
+        qemu_bin = "qemu-system-{}".format(qemu_arch)
+        if self.local_emulator or local:
+            qemu_bin = os.path.join(self.builddir, 'host', 'bin', qemu_bin)
+
+        qemu_cmd = [qemu_bin,
                     "-serial", "stdio",
                     "-display", "none"]
 

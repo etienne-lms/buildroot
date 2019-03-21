@@ -51,6 +51,8 @@ class BRConfigTest(unittest.TestCase):
 
     def setUp(self):
         self.show_msg("Starting")
+        if self.local_emulator:
+            self.config = self.config + self.config_emulator
         self.b = Builder(self.config, self.builddir, self.logtofile)
 
         if not self.keepbuilds:
@@ -78,7 +80,8 @@ class BRTest(BRConfigTest):
             self.show_msg("Building done")
 
         self.emulator = Emulator(self.builddir, self.downloaddir,
-                                 self.logtofile, self.timeout_multiplier)
+                                 self.logtofile, self.timeout_multiplier,
+                                 self.local_emulator)
 
     def tearDown(self):
         if self.emulator:
