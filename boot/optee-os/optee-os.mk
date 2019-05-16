@@ -62,6 +62,8 @@ OPTEE_OS_LOCAL_SDK = $(OPTEE_OS_BUILDDIR_OUT)/export-ta_arm32
 OPTEE_OS_SDK = $(STAGING_DIR)/lib/optee/export-ta_arm32
 endif
 
+OPTEE_OS_EXTERNAL_SDK = $(call qstrip,$(BR2_TARGET_OPTEE_OS_SDK_PATH))
+
 ifeq ($(BR2_TARGET_OPTEE_OS_CORE),y)
 define OPTEE_OS_BUILD_CORE
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) O=$(OPTEE_OS_BUILDDIR_OUT) \
@@ -85,16 +87,37 @@ define OPTEE_OS_INSTALL_TARGET_CMDS
 endef
 endif # BR2_TARGET_OPTEE_OS_SERVICES
 
+# SDK staging install is common the SDK staging install, used when
+# either package builds SDK or package imports an external SDK.
+define OPTEE_OS_INSTALL_STAGING_SDK
+	mkdir -p $(OPTEE_OS_SDK)
+	cp -ardpf $(@D)/$(OPTEE_OS_LOCAL_SDK)/* $(OPTEE_OS_SDK)
+endef
+
 ifeq ($(BR2_TARGET_OPTEE_OS_SDK),y)
 define OPTEE_OS_BUILD_SDK
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) O=$(OPTEE_OS_BUILDDIR_OUT) \
 		 $(TARGET_CONFIGURE_OPTS) $(OPTEE_OS_MAKE_OPTS) ta_dev_kit
 endef
 define OPTEE_OS_INSTALL_STAGING_CMDS
-	mkdir -p $(OPTEE_OS_SDK)
-	cp -ardpf $(@D)/$(OPTEE_OS_LOCAL_SDK)/* $(OPTEE_OS_SDK)
+	$(OPTEE_OS_INSTALL_STAGING_SDK)
 endef
 endif # BR2_TARGET_OPTEE_OS_SDK
+
+ifneq ($(BR2_TARGET_OPTEE_OS_SDK_PATH),)
+ifeq (,$(wildcard $(OPTEE_OS_EXTERNAL_SDK)))
+$(error Invalid external SDK path $(OPTEE_OS_EXTERNAL_SDK))
+endif
+# SDK is not built from sources but imported from an external filetree
+# BR2_TARGET_OPTEE_OS_SDK_PATH mandates !BR2_TARGET_OPTEE_OS_SDK
+define OPTEE_OS_BUILD_SDK
+	mkdir -p $(@D)/$(OPTEE_OS_LOCAL_SDK)
+	cp -ardpf $(OPTEE_OS_EXTERNAL_SDK)/* $(@D)/$(OPTEE_OS_LOCAL_SDK)
+endef
+define OPTEE_OS_INSTALL_STAGING_CMDS
+	$(OPTEE_OS_INSTALL_STAGING_SDK)
+endef
+endif # BR2_TARGET_OPTEE_OS_SDK_PATH
 
 define OPTEE_OS_BUILD_CMDS
 	$(OPTEE_OS_BUILD_CORE)
@@ -106,10 +129,12 @@ define OPTEE_OS_INSTALL_IMAGES_CMDS
 	$(OPTEE_OS_INSTALL_IMAGES_SERVICES)
 endef
 
-ifeq ($(BR2_TARGET_OPTEE_OS)$(BR_BUILDING),yy)
+ifeq ($(BR_BUILDING),y)
+ifneq (,$(filter y,$(BR2_TARGET_OPTEE_OS_CORE) $(BR2_TARGET_OPTEE_OS_SDK)))
 ifeq ($(call qstrip,$(BR2_TARGET_OPTEE_OS_PLATFORM)),)
 $(error No OP-TEE OS platform set. Check your BR2_TARGET_OPTEE_OS_PLATFORM setting)
 endif
-endif # BR2_TARGET_OPTEE_OS && BR2_BUILDING
+endif # BR2_TARGET_OPTEE_OS_CORE || BR2_TARGET_OPTEE_OS_SDK
+endif # BR2_BUILDING
 
 $(eval $(generic-package))

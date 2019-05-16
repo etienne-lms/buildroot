@@ -72,7 +72,6 @@ config BR2_TARGET_OPTEE_OS_SDK
 config BR2_TARGET_OPTEE_OS_SERVICES
 	bool "Build service TAs and libs"
 	default y
-	select BR2_TARGET_OPTEE_OS_CORE
 	help
 	  This option installs the service trusted applications and
 	  trusted shared libraries built from OP-TEE OS source tree.
@@ -80,6 +79,18 @@ config BR2_TARGET_OPTEE_OS_SERVICES
 	  as other trusted applications. At runtime OP-TEE OS can
 	  load these from this non-secure filesystem/directory into
 	  the secure world for execution.
+
+
+if !BR2_TARGET_OPTEE_OS_CORE && !BR2_TARGET_OPTEE_OS_SDK
+
+config BR2_TARGET_OPTEE_OS_SDK_PATH
+	string "External SDK path"
+	depends on !BR2_TARGET_OPTEE_OS_CORE && !BR2_TARGET_OPTEE_OS_SDK
+	help
+	  Path of the prebuilt OP-TEE SDK when one build the OP-TEE resources
+	  based on an external TA developement kit.
+
+endif
 
 config BR2_TARGET_OPTEE_OS_PLATFORM
 	string "Target platform (mandatory)"
