@@ -3,7 +3,6 @@ config BR2_PACKAGE_OPTEE_EXAMPLES
 	depends on BR2_TARGET_OPTEE_OS
 	depends on BR2_TOOLCHAIN_HAS_THREADS # optee-client
 	select BR2_PACKAGE_OPTEE_CLIENT
-	select BR2_TARGET_OPTEE_OS_SDK
 	help
 	  Enable the OP-TEE examples package that brings examples of
 	  implementation of OP-TEE non-secure client applications and
