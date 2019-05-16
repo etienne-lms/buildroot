@@ -77,6 +77,22 @@ endef
 endif # BR2_TARGET_OPTEE_OS_CORE
 
 ifeq ($(BR2_TARGET_OPTEE_OS_SERVICES),y)
+ifneq ($(BR2_TARGET_OPTEE_OS_CORE),y)
+# If not building core, one can still build TAs from built SDK or external SDK
+ifeq ($(BR2_TARGET_OPTEE_OS_SDK),y)
+OPTEE_OS_TAS_SDK = $(OPTEE_OS_LOCAL_SDK)
+else
+OPTEE_OS_TAS_SDK = $(OPTEE_OS_EXTERNAL_SDK)
+endif
+define OPTEE_OS_BUILD_TAS_ONLY
+	$(foreach f,$(wildcard $(@D)/ta/*/Makefile), \
+		$(TARGET_CONFIGURE_OPTS) \
+		$(MAKE) CROSS_COMPILE=$(TARGET_CROSS) \
+			TA_DEV_KIT_DIR=$(OPTEE_OS_TAS_SDK) \
+			-C $(dir $f) all
+	)
+endef
+endif # !BR2_TARGET_OPTEE_OS_CORE
 define OPTEE_OS_INSTALL_TARGET_CMDS
 	$(if $(wildcard $(@D)/$(OPTEE_OS_BUILDDIR_OUT)/ta/*/*.ta),
 		$(INSTALL) -D -m 444 -t $(TARGET_DIR)/lib/optee_armtz \
@@ -122,6 +138,7 @@ endif # BR2_TARGET_OPTEE_OS_SDK_PATH
 define OPTEE_OS_BUILD_CMDS
 	$(OPTEE_OS_BUILD_CORE)
 	$(OPTEE_OS_BUILD_SDK)
+	$(OPTEE_OS_BUILD_TAS_ONLY)
 endef
 
 define OPTEE_OS_INSTALL_IMAGES_CMDS
