@@ -3,7 +3,6 @@ config BR2_PACKAGE_OPTEE_TEST
 	depends on BR2_TARGET_OPTEE_OS
 	depends on BR2_TOOLCHAIN_HAS_THREADS # optee-client
 	select BR2_PACKAGE_OPTEE_CLIENT
-	select BR2_TARGET_OPTEE_OS_SDK
 	help
 	  This build option enables OP-TEE test package from the
 	  OP-TEE project. It helps platforms to verify the OP-TEE
