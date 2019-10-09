@@ -378,6 +378,9 @@ config BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME
 
 endmenu
 
+config BR2_TARGET_UBOOT_FORMAT_STM32
+	bool "u-boot.stm32"
+
 config BR2_TARGET_UBOOT_OMAP_IFT
 	bool "produce a .ift signed image (OMAP)"
 	depends on BR2_TARGET_UBOOT_FORMAT_BIN
