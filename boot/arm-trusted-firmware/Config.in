@@ -124,6 +124,13 @@ config BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33
 	  gets built before ATF, and that the appropriate BL33
 	  variable pointing to u-boot.bin is passed when building ATF.
 
+config BR2_TARGET_ARM_TRUSTED_FIRMWARE_IMAGE_NAMES
+        string "Image names"
+        default "*.bin"
+        help
+	  File names of the generated boot images to be copied to
+	  output directory images/.
+
 config BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES
 	string "Additional ATF build variables"
 	help
