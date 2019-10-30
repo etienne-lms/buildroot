@@ -1,0 +1,92 @@
+# STM32MP157C DK2 board upstream with OP-TEE
+#
+# TF-A: use native version v2.2 (not yet released: still using master)
+#
+# OP-TEE: obviosuly the master branch without patches.
+# OP-TEE deafult reserves the 32 last MB of the DDR to secure usage.
+#
+# U-Boot: native v2019.07 + stm32mp15_trusted defconfig + Hide 32MB top DDR
+#
+# Linux: Use master + patch to add OP-TEE firmware node in kernel DTS.
+#
+
+BR2_GLOBAL_PATCH_DIR="board/stmicroelectronics/stm32mp157c-tz/patches"
+
+# Architecture
+BR2_arm=y
+BR2_cortex_a7=y
+
+# TF-A for booting OP-TEE secure and uboot/linux non secure
+BR2_TARGET_ARM_TRUSTED_FIRMWARE=y
+#BR2_TARGET_ARM_TRUSTED_FIRMWARE_VERSION_LATEST=y
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_GIT=y
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_REPO_URL="https://github.com/ARM-software/arm-trusted-firmware.git"
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_CUSTOM_REPO_VERSION="v2.4"
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_PLATFORM="stm32mp1"
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_BL32_OPTEE=y
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES="DTB_FILE_NAME=stm32mp157c-dk2.dtb LOG_LEVEL=0 STM32MP_EMMC=1 STM32MP_SDMMC=1 "
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_UBOOT_AS_BL33=y
+#BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES="DTB_FILE_NAME=stm32mp157c-dk2.dtb LOG_LEVEL=40 AARCH32_SP=sp_min STM32MP_EMMC=1 STM32MP_SDMMC=1 STM32MP_RAW_NAND=0 STM32MP_SPI_NAND=0 STM32MP_SPI_NOR=0"
+BR2_TARGET_ARM_TRUSTED_FIRMWARE_IMAGES"*.stm32"
+#BR2_TARGET_ARM_TRUSTED_FIRMWARE_DEBUG=y
+
+# OP-TEE components
+BR2_TARGET_OPTEE_OS=y
+BR2_TARGET_OPTEE_OS_LATEST_VERSION=y
+BR2_TARGET_OPTEE_OS_PLATFORM="stm32mp1"
+BR2_TARGET_OPTEE_OS_ADDITIONAL_VARIABLES="CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-dk2.dts CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2 CFG_ENABLE_EMBEDDED_TESTS=y CFG_WERROR=y"
+# comp-cflagscore=-Wno-sign-compare\ -Wn-format\ -Wno-unused-variable\ -Wno-parentheses
+BR2_TARGET_OPTEE_OS_CORE_IMAGES="tee-*_v2.stm32"
+
+# U-boot for booting the dear Linux kernel
+BR2_TARGET_UBOOT=y
+BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG=y
+BR2_TARGET_UBOOT_LATEST_VERSION=y
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG="stm32mp15_trusted"
+#BR2_TARGET_UBOOT_CONFIG_FRAGMENT_FILES="board/stmicroelectronics/stm32mp157c-tz/uboot-fragment-dk2.config"
+BR2_TARGET_UBOOT_CUSTOM_MAKEOPTS="DEVICE_TREE=stm32mp157c-dk2"
+BR2_TARGET_UBOOT_FORMAT_STM32=y
+
+# Kernel
+# 
+# Kernel maybe need a patch in DTS to define OP-TEE resource (in case
+# u-boot is not ready for dynamic modification of DTB.
+# Patches, if any, in board/stmicroelectronics/stm32mp157c-tz/patches/
+BR2_LINUX_KERNEL=y
+BR2_LINUX_KERNEL_LATEST_VERSION=y
+#aR2_LINUX_KERNEL_CUSTOM_VERSION=y
+#BR2_LINUX_KERNEL_VERSION="5.4"
+
+BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="board/stmicroelectronics/stm32mp157c-tz/fragment-01-multiv7_cleanup.config board/stmicroelectronics/stm32mp157c-tz/fragment-02-multiv7_addons.config board/stmicroelectronics/stm32mp157c-tz/fragment-03-optee.config"
+#
+#BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
+#BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="board/stmicroelectronics/stm32mp157c-tz/linux.config"
+###BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="board/stmicroelectronics/stm32mp157c-tz/linux-fragement-v5.7.config"
+
+BR2_LINUX_KERNEL_DTS_SUPPORT=y
+BR2_LINUX_KERNEL_INTREE_DTS_NAME="stm32mp157c-dk2"
+BR2_LINUX_KERNEL_UIMAGE=y
+BR2_LINUX_KERNEL_UIMAGE_LOADADDR="0xc2000000"
+BR2_LINUX_KERNEL_INSTALL_TARGET=y
+
+# System
+BR2_PACKAGE_BUSYBOX_WATCHDOG=y
+BR2_PACKAGE_OPTEE_CLIENT=y
+BR2_PACKAGE_OPTEE_TEST=y
+BR2_PACKAGE_OPTEE_EXAMPLES=y
+BR2_PACKAGE_OPTEE_BENCHMARK=y
+
+BR2_INIT_SYSTEMD=y
+BR2_PACKAGE_SYSTEMD=y
+BR2_PACKAGE_SYSTEMD_HIBERNATE=y
+
+BR2_TARGET_GENERIC_GETTY_PORT="ttySTM0"
+BR2_TARGET_GENERIC_ISSUE="Buildroot distrib for stm32mp157c-dk2 with OP-TEE"
+BR2_TARGET_ROOTFS_EXT2=y
+# U-Boot write to bootfs and corrupts Ext4 data, prefer use Ext2.
+# BR2_TARGET_ROOTFS_EXT2_4 is not set
+BR2_ROOTFS_OVERLAY="board/stmicroelectronics/stm32mp157c-tz/overlay-dk2/"
+BR2_PACKAGE_HOST_GENIMAGE=y
+BR2_ROOTFS_POST_IMAGE_SCRIPT="support/scripts/genimage.sh"
+BR2_ROOTFS_POST_SCRIPT_ARGS="-c board/stmicroelectronics/stm32mp157c-tz/genimage-dk2.cfg"
