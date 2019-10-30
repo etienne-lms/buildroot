@@ -1,0 +1,85 @@
+From c325788ab07475d1efeb618f0829320f1e7e83bb Mon Sep 17 00:00:00 2001
+From: Etienne Carriere <etienne.carriere@linaro.org>
+Date: Tue, 28 Apr 2020 06:03:08 +0200
+Subject: [PATCH 2/2] ARM: dts: stm32: Define OP-TEE resources on stm32mp15
+
+Define OP-TEE firmware node and OP-TEE reserved memory
+for stm32mp15xc platforms.
+
+Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
+---
+ arch/arm/boot/dts/stm32mp157c-dk2.dts | 11 +++++++++++
+ arch/arm/boot/dts/stm32mp157c-ed1.dts |  9 +++++++++
+ arch/arm/boot/dts/stm32mp15xc.dtsi    |  8 ++++++++
+ 3 files changed, 28 insertions(+)
+
+diff --git a/arch/arm/boot/dts/stm32mp157c-dk2.dts b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+index 7985b80967ca..29701f2e8ef6 100644
+--- a/arch/arm/boot/dts/stm32mp157c-dk2.dts
++++ b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+@@ -24,6 +24,13 @@
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
++
++	reserved-memory {
++		optee_memory: optee@0xde000000 {
++			reg = <0xde000000 0x02000000>;
++			no-map;
++		};
++	};
+ };
+ 
+ &dsi {
+@@ -92,3 +99,7 @@
+ 		};
+ 	};
+ };
++
++&optee {
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/stm32mp157c-ed1.dts b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+index 9d2592db630c..ef11f3f03c47 100644
+--- a/arch/arm/boot/dts/stm32mp157c-ed1.dts
++++ b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+@@ -70,6 +70,11 @@
+ 			reg = <0xe8000000 0x8000000>;
+ 			no-map;
+ 		};
++
++		optee_memory: optee@0xfe000000 {
++			reg = <0xfe000000 0x02000000>;
++			no-map;
++		};
+ 	};
+ 
+ 	aliases {
+@@ -370,3 +375,7 @@
+ 	vdda1v1-supply = <&reg11>;
+ 	vdda1v8-supply = <&reg18>;
+ };
++
++&optee {
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/stm32mp15xc.dtsi b/arch/arm/boot/dts/stm32mp15xc.dtsi
+index b06a55a2fa18..c5033a160df6 100644
+--- a/arch/arm/boot/dts/stm32mp15xc.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xc.dtsi
+@@ -15,4 +15,12 @@
+ 			status = "disabled";
+ 		};
+ 	};
++
++	firmware {
++		optee: optee {
++			compatible = "linaro,optee-tz";
++			method = "smc";
++			status = "disabled";
++		};
++	};
+ };
+-- 
+2.17.1
+
